@@ -6,7 +6,7 @@ import (
 )
 
 type dereferenceEncoder struct {
-	ValueEncoder ValEncoder
+	ValueEncoder Encoder
 }
 
 func (encoder *dereferenceEncoder) Encode(ptr unsafe.Pointer, buf *bytes.Buffer) {
@@ -15,14 +15,6 @@ func (encoder *dereferenceEncoder) Encode(ptr unsafe.Pointer, buf *bytes.Buffer)
 	} else {
 		encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), buf)
 	}
-}
-
-func (encoder *dereferenceEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-	dePtr := *((*unsafe.Pointer)(ptr))
-	if dePtr == nil {
-		return true
-	}
-	return encoder.ValueEncoder.IsEmpty(dePtr)
 }
 
 func (encoder *dereferenceEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {

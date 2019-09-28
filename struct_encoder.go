@@ -8,17 +8,12 @@ import (
 
 type StructFieldEncoder struct {
 	field        reflect2.StructField
-	fieldEncoder ValEncoder
+	fieldEncoder Encoder
 }
 
 func (encoder *StructFieldEncoder) Encode(ptr unsafe.Pointer, buf *bytes.Buffer) {
 	fieldPtr := encoder.field.UnsafeGet(ptr)
 	encoder.fieldEncoder.Encode(fieldPtr, buf)
-}
-
-func (encoder *StructFieldEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-	fieldPtr := encoder.field.UnsafeGet(ptr)
-	return encoder.fieldEncoder.IsEmpty(fieldPtr)
 }
 
 func (encoder *StructFieldEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {

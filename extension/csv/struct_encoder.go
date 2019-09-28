@@ -24,7 +24,3 @@ func (encoder *StructEncoder) Encode(ptr unsafe.Pointer, buf *bytes.Buffer) {
 	}
 	buf.WriteObjectEnd()
 }
-
-func (encoder *StructEncoder) IsEmpty(ptr unsafe.Pointer) bool {
-	return false
-}
