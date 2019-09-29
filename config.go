@@ -10,7 +10,7 @@ type Config struct {
 	UseNumber                     bool
 	DisallowUnknownFields         bool
 	TagKey                        string
-	OnlyTaggedField               bool
+	TaggedFieldOnly               bool
 	ObjectFieldMustBeSimpleString bool
 	CaseSensitive                 bool
 }

@@ -4,9 +4,13 @@ github.com/davecgh/go-spew/spew
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
+# github.com/onelrdm/conv v0.0.0-20190928083605-fb6cea39ce1d
+github.com/onelrdm/conv
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
 # github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
+# github.com/tealeg/xlsx v1.0.3
+github.com/tealeg/xlsx
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2

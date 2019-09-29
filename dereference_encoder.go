@@ -1,7 +1,6 @@
 package reflectutil
 
 import (
-	"bytes"
 	"unsafe"
 )
 
@@ -9,12 +8,8 @@ type dereferenceEncoder struct {
 	ValueEncoder Encoder
 }
 
-func (encoder *dereferenceEncoder) Encode(ptr unsafe.Pointer, buf *bytes.Buffer) {
-	if *((*unsafe.Pointer)(ptr)) == nil {
-		buf.Write([]byte{'n', 'u', 'l', 'l'})
-	} else {
-		encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), buf)
-	}
+func (encoder *dereferenceEncoder) Encode(ptr unsafe.Pointer, writer interface{}) {
+	encoder.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), writer)
 }
 
 func (encoder *dereferenceEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {

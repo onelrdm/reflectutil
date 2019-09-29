@@ -77,6 +77,5 @@ func TestReflect(t *testing.T) {
 
 func BenchmarkReflect(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-
 	}
 }

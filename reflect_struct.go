@@ -1,7 +1,6 @@
 package reflectutil
 
 import (
-	"bytes"
 	"github.com/modern-go/reflect2"
 	"reflect"
 	"sort"
@@ -12,7 +11,7 @@ import (
 
 // Encoder is an internal type registered to cache as needed.
 type Encoder interface {
-	Encode(ptr unsafe.Pointer, buf *bytes.Buffer)
+	Encode(ptr unsafe.Pointer, writer interface{})
 }
 
 // FieldBinding describe how should we encode/decode the struct field
@@ -64,20 +63,27 @@ func (r *StructDescriptor) GetFieldBinding(fieldName string) *FieldBinding {
 	return nil
 }
 
-func DescribeStruct(cfg *Config, typ reflect2.Type) *StructDescriptor {
+type Context interface {
+	Config() *Config
+	NewEncoder(reflect2.Type) Encoder
+}
+
+func DescribeStruct(ctx Context, typ reflect2.Type) *StructDescriptor {
+	cfg := ctx.Config()
 	var embeddedBindings []*FieldBinding
 	var bindings []*FieldBinding
 	concreteTyp := typ.(*reflect2.UnsafeStructType)
 	for i := 0; i < concreteTyp.NumField(); i++ {
 		field := concreteTyp.Field(i)
 		tag, found := field.Tag().Lookup(cfg.getTagKey())
-		if cfg.OnlyTaggedField && !found && !field.Anonymous() {
+		if cfg.TaggedFieldOnly && !found && !field.Anonymous() {
 			continue
 		}
 		if tag == "-" {
 			continue
 		}
 		tagParts := strings.Split(tag, ",")
+		level := i
 		if field.Anonymous() && (tag == "" || tagParts[0] == "") {
 			typ := field.Type()
 			kind := typ.Kind()
@@ -87,16 +93,16 @@ func DescribeStruct(cfg *Config, typ reflect2.Type) *StructDescriptor {
 				kind = typ.Kind()
 			}
 			if kind == reflect.Struct {
-				structDescriptor := DescribeStruct(cfg, typ)
+				structDescriptor := DescribeStruct(ctx, typ)
 				if isPtr {
 					for _, binding := range structDescriptor.Fields {
-						binding.levels = append([]int{i}, binding.levels...)
+						binding.levels = append([]int{level}, binding.levels...)
 						binding.Encoder = &StructFieldEncoder{field, &dereferenceEncoder{binding.Encoder}}
 						embeddedBindings = append(embeddedBindings, binding)
 					}
 				} else {
 					for _, binding := range structDescriptor.Fields {
-						binding.levels = append([]int{i}, binding.levels...)
+						binding.levels = append([]int{level}, binding.levels...)
 						binding.Encoder = &StructFieldEncoder{field, binding.Encoder}
 						embeddedBindings = append(embeddedBindings, binding)
 					}
@@ -104,12 +110,11 @@ func DescribeStruct(cfg *Config, typ reflect2.Type) *StructDescriptor {
 				continue
 			}
 		}
-		fieldNames := convertFieldName(field.Name(), tagParts[0], tag)
 		binding := &FieldBinding{
-			levels:  []int{i},
+			levels:  []int{level},
 			Field:   field,
-			Name:    fieldNames,
-			Encoder: nil, // TODO
+			Name:    convertFieldName(field.Name(), tagParts[0], tag),
+			Encoder: ctx.NewEncoder(field.Type()),
 		}
 		bindings = append(bindings, binding)
 	}

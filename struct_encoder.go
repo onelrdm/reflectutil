@@ -1,7 +1,6 @@
 package reflectutil
 
 import (
-	"bytes"
 	"github.com/modern-go/reflect2"
 	"unsafe"
 )
@@ -11,17 +10,21 @@ type StructFieldEncoder struct {
 	fieldEncoder Encoder
 }
 
-func (encoder *StructFieldEncoder) Encode(ptr unsafe.Pointer, buf *bytes.Buffer) {
-	fieldPtr := encoder.field.UnsafeGet(ptr)
-	encoder.fieldEncoder.Encode(fieldPtr, buf)
+func (r *StructFieldEncoder) Encoder() Encoder {
+	return r.fieldEncoder
 }
 
-func (encoder *StructFieldEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
-	isEmbeddedPtrNil, converted := encoder.fieldEncoder.(IsEmbeddedPtrNil)
+func (r *StructFieldEncoder) Encode(ptr unsafe.Pointer, writer interface{}) {
+	fieldPtr := r.field.UnsafeGet(ptr)
+	r.fieldEncoder.Encode(fieldPtr, writer)
+}
+
+func (r *StructFieldEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
+	isEmbeddedPtrNil, converted := r.fieldEncoder.(IsEmbeddedPtrNil)
 	if !converted {
 		return false
 	}
-	fieldPtr := encoder.field.UnsafeGet(ptr)
+	fieldPtr := r.field.UnsafeGet(ptr)
 	return isEmbeddedPtrNil.IsEmbeddedPtrNil(fieldPtr)
 }
 
