@@ -2,6 +2,7 @@ package reflectutil
 
 import (
 	"github.com/modern-go/reflect2"
+	"github.com/onelrdm/conv"
 	"reflect"
 	"sort"
 	"strings"
@@ -84,6 +85,9 @@ func DescribeStruct(ctx Context, typ reflect2.Type) *StructDescriptor {
 		}
 		tagParts := strings.Split(tag, ",")
 		level := i
+		if len(tagParts) > 1 {
+			level = int(conv.MustInt64(tagParts[1]))
+		}
 		if field.Anonymous() && (tag == "" || tagParts[0] == "") {
 			typ := field.Type()
 			kind := typ.Kind()
@@ -97,7 +101,7 @@ func DescribeStruct(ctx Context, typ reflect2.Type) *StructDescriptor {
 				if isPtr {
 					for _, binding := range structDescriptor.Fields {
 						binding.levels = append([]int{level}, binding.levels...)
-						binding.Encoder = &StructFieldEncoder{field, &dereferenceEncoder{binding.Encoder}}
+						binding.Encoder = &StructFieldEncoder{field, &DereferenceEncoder{binding.Encoder}}
 						embeddedBindings = append(embeddedBindings, binding)
 					}
 				} else {
@@ -113,7 +117,7 @@ func DescribeStruct(ctx Context, typ reflect2.Type) *StructDescriptor {
 		binding := &FieldBinding{
 			levels:  []int{level},
 			Field:   field,
-			Name:    convertFieldName(field.Name(), tagParts[0], tag),
+			Name:    convertFieldName(field.Name(), tagParts[0]),
 			Encoder: ctx.NewEncoder(field.Type()),
 		}
 		bindings = append(bindings, binding)
@@ -124,10 +128,7 @@ func DescribeStruct(ctx Context, typ reflect2.Type) *StructDescriptor {
 	return &StructDescriptor{Type: typ, Fields: allBindings}
 }
 
-func convertFieldName(fieldName string, tagName string, tag string) string {
-	if tag == "-" {
-		return ""
-	}
+func convertFieldName(fieldName string, tagName string) string {
 	unexported := unicode.IsLower(rune(fieldName[0]))
 	if unexported {
 		return ""

@@ -18,16 +18,3 @@ func (r *StructFieldEncoder) Encode(ptr unsafe.Pointer, writer interface{}) {
 	fieldPtr := r.field.UnsafeGet(ptr)
 	r.fieldEncoder.Encode(fieldPtr, writer)
 }
-
-func (r *StructFieldEncoder) IsEmbeddedPtrNil(ptr unsafe.Pointer) bool {
-	isEmbeddedPtrNil, converted := r.fieldEncoder.(IsEmbeddedPtrNil)
-	if !converted {
-		return false
-	}
-	fieldPtr := r.field.UnsafeGet(ptr)
-	return isEmbeddedPtrNil.IsEmbeddedPtrNil(fieldPtr)
-}
-
-type IsEmbeddedPtrNil interface {
-	IsEmbeddedPtrNil(ptr unsafe.Pointer) bool
-}
