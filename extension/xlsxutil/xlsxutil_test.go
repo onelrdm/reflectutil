@@ -90,4 +90,16 @@ func TestConvert(t *testing.T) {
 	}
 	err = Convert(duplicatedSlice, nil)
 	assert.Error(t, err)
+
+	{
+		type SliceListPtr struct {
+			List []*Val `reflect:"list"`
+		}
+		slice := &SliceListPtr{
+			List: []*Val{&val},
+		}
+		err = Convert(slice, &buf)
+		assert.NoError(t, err)
+	}
+
 }

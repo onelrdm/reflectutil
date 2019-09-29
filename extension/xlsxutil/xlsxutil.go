@@ -12,6 +12,13 @@ func Convert(obj interface{}, writer io.Writer) error {
 	ctx := NewContext(&reflectutil.Config{TaggedFieldOnly: true})
 	typ := reflect2.TypeOf(obj)
 	kind := typ.Kind()
+
+	if kind == reflect.Ptr {
+		ptrType := typ.(*reflect2.UnsafePtrType)
+		typ = ptrType.Elem()
+		kind = typ.Kind()
+	}
+
 	if kind != reflect.Struct {
 		return ErrMustBeStruct
 	}

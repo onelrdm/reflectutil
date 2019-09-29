@@ -30,6 +30,10 @@ func (r Context) NewEncoder(typ reflect2.Type) reflectutil.Encoder {
 		return stringCodec
 	case reflect.Struct:
 		return &structEncoder{typ: typ}
+	case reflect.Ptr:
+		ptrType := typ.(*reflect2.UnsafePtrType)
+		elemEncoder := r.NewEncoder(ptrType.Elem())
+		return &reflectutil.DereferenceEncoder{ValueEncoder: elemEncoder}
 	case reflect.Slice:
 		sliceType := typ.(*reflect2.UnsafeSliceType)
 		encoder := r.NewEncoder(sliceType.Elem())
