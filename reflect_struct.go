@@ -1,6 +1,7 @@
 package reflectutil
 
 import (
+	"fmt"
 	"github.com/modern-go/reflect2"
 	"github.com/onelrdm/conv"
 	"reflect"
@@ -100,8 +101,10 @@ func DescribeStruct(ctx Context, typ reflect2.Type, callbacks ...func(*reflect2.
 				structDescriptor := DescribeStruct(ctx, typ)
 				if isPtr {
 					for _, binding := range structDescriptor.Fields {
+						fmt.Printf("binding %+v\n", binding)
+						fmt.Printf("\tbinding.Encoder %+v\n", binding.Encoder)
 						binding.levels = append([]int{level}, binding.levels...)
-						binding.Encoder = &StructFieldEncoder{field, &DereferenceEncoder{binding.Encoder}}
+						binding.Encoder = &StructFieldEncoder{field: field, fieldEncoder: &DereferenceEncoder{binding.Encoder}}
 						embeddedBindings = append(embeddedBindings, binding)
 					}
 				} else {

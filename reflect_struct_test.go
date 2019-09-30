@@ -22,12 +22,26 @@ func (r TestContext) Config() *Config {
 	return r.cfg
 }
 
+func (r TestContext) NewEncoder(typ reflect2.Type) Encoder {
+	kind := typ.Kind()
+	switch kind {
+	default:
+		return &AnyCodec{valType: typ}
+	}
+}
+
 type AnyCodec struct {
 	valType reflect2.Type
 }
 
 type Writer interface {
 	WriteString(string) error
+}
+
+type TestWriter struct{}
+
+func (TestWriter) WriteString(string) error{
+	return nil
 }
 
 func (r AnyCodec) Encode(ptr unsafe.Pointer, writer interface{}) {
@@ -44,14 +58,6 @@ func (r AnyCodec) Encode(ptr unsafe.Pointer, writer interface{}) {
 		s = conv.MustString(v)
 	}
 	_ = writer.(Writer).WriteString(s)
-}
-
-func (r TestContext) NewEncoder(typ reflect2.Type) Encoder {
-	kind := typ.Kind()
-	switch kind {
-	default:
-		return &AnyCodec{valType: typ}
-	}
 }
 
 func TestDescribeStruct(t *testing.T) {
@@ -76,23 +82,25 @@ func TestDescribeStruct(t *testing.T) {
 		Embed
 		Data *time.Time `reflect:"data"`
 	}
-	val := Val{
-		Embed: Embed{
-			Embed2: &Embed2{
-				ID2:    2,
-				Name2:  "name2",
-				Valid2: true,
-				Time2:  now,
+	{
+		val := Val{
+			Embed: Embed{
+				Embed2: &Embed2{
+					ID2:    2,
+					Name2:  "name2",
+					Valid2: true,
+					Time2:  now,
+				},
+				ID:   1,
+				Name: "name",
+				Time: &now,
 			},
-			ID:   1,
-			Name: "name",
-			Time: &now,
-		},
-		Data: &now,
+			Data: &now,
+		}
+		assert.NotNil(t, DescribeStruct(NewContext(&Config{}), reflect2.TypeOf(val)))
+		assert.NotNil(t, DescribeStruct(NewContext(&Config{TaggedFieldOnly: true}), reflect2.TypeOf(val)))
+		assert.NotNil(t, DescribeStruct(NewContext(&Config{TaggedFieldOnly: true, TagKey: "other_tag_key"}), reflect2.TypeOf(val)))
 	}
-	assert.NotNil(t, DescribeStruct(NewContext(&Config{}), reflect2.TypeOf(val)))
-	assert.NotNil(t, DescribeStruct(NewContext(&Config{TaggedFieldOnly: true}), reflect2.TypeOf(val)))
-	assert.NotNil(t, DescribeStruct(NewContext(&Config{TaggedFieldOnly: true, TagKey: "other_tag_key"}), reflect2.TypeOf(val)))
 	{
 		type Embed struct {
 			ID   int    `reflect:"id,3"`
@@ -108,6 +116,35 @@ func TestDescribeStruct(t *testing.T) {
 		assert.Equal(t, sd.Fields[0].Name, "name")
 		assert.Equal(t, sd.Fields[1].Name, "data")
 		assert.Equal(t, sd.Fields[2].Name, "id")
+	}
+	{
+		type Val struct {
+			ID   int    `reflect:"id,3"`
+			Name string `reflect:"name,1"`
+		}
+		val := Val{ID: 1, Name: "name"}
+		DescribeStruct(NewContext(&Config{}), reflect2.TypeOf(val), func(field *reflect2.StructField) {
+		})
+	}
+}
+
+func TestDescribeStruct2(t *testing.T) {
+	{
+		type Embed struct {
+			ID   int    `reflect:"id,3"`
+			Name string `reflect:"name,1"`
+			Data string `reflect:"data,2"`
+		}
+		type Val struct {
+			*Embed
+		}
+		val := Val{Embed: &Embed{ID: 1, Name: "name", Data: "data"}}
+		sd := DescribeStruct(NewContext(&Config{}), reflect2.TypeOf(val))
+		assert.NotNil(t, sd)
+		assert.Equal(t, sd.Fields[0].Name, "name")
+		assert.Equal(t, sd.Fields[1].Name, "data")
+		assert.Equal(t, sd.Fields[2].Name, "id")
+		sd.Fields[0].Encoder.Encode(reflect2.PtrOf(val.Embed.Name), &TestWriter{})
 	}
 }
 
@@ -140,5 +177,4 @@ func TestStructDescriptor_GetFieldBinding(t *testing.T) {
 	}
 	assert.NotNil(t, r.GetFieldBinding("Test"))
 	assert.Nil(t, r.GetFieldBinding(""))
-
 }

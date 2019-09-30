@@ -9,5 +9,9 @@ type DereferenceEncoder struct {
 }
 
 func (r *DereferenceEncoder) Encode(ptr unsafe.Pointer, writer interface{}) {
-	r.Encoder.Encode(*((*unsafe.Pointer)(ptr)), writer)
+	deReferenced := *((*unsafe.Pointer)(ptr))
+	if deReferenced == nil {
+		return
+	}
+	r.Encoder.Encode(deReferenced, writer)
 }

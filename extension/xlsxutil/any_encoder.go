@@ -8,7 +8,7 @@ import (
 )
 
 type AnyCodec struct {
-	valType reflect2.Type
+	typ reflect2.Type
 }
 
 type Writer interface {
@@ -16,7 +16,7 @@ type Writer interface {
 }
 
 func (r AnyCodec) Encode(ptr unsafe.Pointer, writer interface{}) {
-	v := r.valType.UnsafeIndirect(ptr)
+	v := r.typ.UnsafeIndirect(ptr)
 	var s string
 	switch v := v.(type) {
 	case time.Time:

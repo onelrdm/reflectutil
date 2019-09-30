@@ -1,6 +1,7 @@
 package xlsxutil
 
 import (
+	"fmt"
 	"github.com/modern-go/reflect2"
 	"github.com/onelrdm/reflectutil"
 	"github.com/tealeg/xlsx"
@@ -27,20 +28,23 @@ func (r StructContext) NewEncoder(typ reflect2.Type) reflectutil.Encoder {
 		return intCodec
 	case reflect.String:
 		return stringCodec
+	case reflect.Ptr:
+		typ := typ.(*reflect2.UnsafePtrType)
+		encoder := r.NewEncoder(typ.Elem())
+		fmt.Printf("%d\n", 3214)
+		return &reflectutil.DereferenceEncoder{Encoder: encoder}
 	default:
-		return &AnyCodec{valType: typ}
+		return &AnyCodec{typ: typ}
 	}
 }
 
 type structEncoder struct {
-	typ reflect2.Type
+	*reflectutil.StructDescriptor
 }
 
 func (r *structEncoder) Encode(ptr unsafe.Pointer, writer interface{}) {
-	ctx := NewStructContext(&reflectutil.Config{TaggedFieldOnly: true})
-	sd := reflectutil.DescribeStruct(ctx, r.typ)
 	row := writer.(*xlsx.Row)
-	for _, binding := range sd.Fields {
+	for _, binding := range r.Fields {
 		cell := row.AddCell()
 		w := CellWriter{Cell: cell}
 		fieldPtr := binding.Field.UnsafeGet(ptr)

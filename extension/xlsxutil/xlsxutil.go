@@ -28,13 +28,13 @@ func Convert(obj interface{}, writer io.Writer) error {
 		if kind != reflect.Slice {
 			continue
 		}
-		hasSlice = true
-		ptr := field.UnsafeGet(reflect2.PtrOf(obj))
 		sheet, err := file.AddSheet(binding.Name)
 		if err != nil {
 			return err
 		}
+		ptr := field.UnsafeGet(reflect2.PtrOf(obj))
 		binding.Encoder.Encode(ptr, sheet)
+		hasSlice = true
 	}
 	if !hasSlice {
 		return ErrMustHaveSlice

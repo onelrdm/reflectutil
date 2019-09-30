@@ -1,6 +1,7 @@
 package xlsxutil
 
 import (
+	"fmt"
 	"github.com/modern-go/reflect2"
 	"github.com/onelrdm/reflectutil"
 	"reflect"
@@ -29,7 +30,10 @@ func (r Context) NewEncoder(typ reflect2.Type) reflectutil.Encoder {
 	case reflect.String:
 		return stringCodec
 	case reflect.Struct:
-		return &structEncoder{typ: typ}
+		fmt.Printf("123\n")
+		ctx := NewStructContext(&reflectutil.Config{TaggedFieldOnly: true})
+		sd := reflectutil.DescribeStruct(ctx, typ)
+		return &structEncoder{sd}
 	case reflect.Ptr:
 		typ := typ.(*reflect2.UnsafePtrType)
 		encoder := r.NewEncoder(typ.Elem())
@@ -39,6 +43,6 @@ func (r Context) NewEncoder(typ reflect2.Type) reflectutil.Encoder {
 		encoder := r.NewEncoder(typ.Elem())
 		return &sliceEncoder{typ: typ, encoder: encoder}
 	default:
-		return &AnyCodec{valType: typ}
+		return &AnyCodec{typ: typ}
 	}
 }

@@ -15,3 +15,10 @@ func TypeOf(obj interface{}) reflect2.Type {
 	}
 	return typ
 }
+
+func EncoderOf(encoder Encoder) interface{} {
+	if encoder, ok := encoder.(*DereferenceEncoder); ok {
+		return encoder.Encoder
+	}
+	return encoder
+}
