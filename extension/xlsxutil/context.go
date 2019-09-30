@@ -31,13 +31,13 @@ func (r Context) NewEncoder(typ reflect2.Type) reflectutil.Encoder {
 	case reflect.Struct:
 		return &structEncoder{typ: typ}
 	case reflect.Ptr:
-		ptrType := typ.(*reflect2.UnsafePtrType)
-		elemEncoder := r.NewEncoder(ptrType.Elem())
-		return &reflectutil.DereferenceEncoder{ValueEncoder: elemEncoder}
+		typ := typ.(*reflect2.UnsafePtrType)
+		encoder := r.NewEncoder(typ.Elem())
+		return &reflectutil.DereferenceEncoder{Encoder: encoder}
 	case reflect.Slice:
-		sliceType := typ.(*reflect2.UnsafeSliceType)
-		encoder := r.NewEncoder(sliceType.Elem())
-		return &sliceEncoder{sliceType: sliceType, elemEncoder: encoder}
+		typ := typ.(*reflect2.UnsafeSliceType)
+		encoder := r.NewEncoder(typ.Elem())
+		return &sliceEncoder{typ: typ, encoder: encoder}
 	default:
 		return &AnyCodec{valType: typ}
 	}

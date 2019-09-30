@@ -8,15 +8,15 @@ import (
 )
 
 type sliceEncoder struct {
-	sliceType   *reflect2.UnsafeSliceType
-	elemEncoder reflectutil.Encoder
+	typ     *reflect2.UnsafeSliceType
+	encoder reflectutil.Encoder
 }
 
 func (r *sliceEncoder) Encode(ptr unsafe.Pointer, writer interface{}) {
-	if r.sliceType.UnsafeIsNil(ptr) {
+	if r.typ.UnsafeIsNil(ptr) {
 		return
 	}
-	length := r.sliceType.UnsafeLengthOf(ptr)
+	length := r.typ.UnsafeLengthOf(ptr)
 	if length == 0 {
 		return
 	}
@@ -24,7 +24,7 @@ func (r *sliceEncoder) Encode(ptr unsafe.Pointer, writer interface{}) {
 	sheet := writer.(*xlsx.Sheet)
 	for i := 0; i < length; i++ {
 		row := sheet.AddRow()
-		elemPtr := r.sliceType.UnsafeGetIndex(ptr, i)
-		r.elemEncoder.Encode(elemPtr, row)
+		elemPtr := r.typ.UnsafeGetIndex(ptr, i)
+		r.encoder.Encode(elemPtr, row)
 	}
 }

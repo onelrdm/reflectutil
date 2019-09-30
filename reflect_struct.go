@@ -69,7 +69,7 @@ type Context interface {
 	NewEncoder(reflect2.Type) Encoder
 }
 
-func DescribeStruct(ctx Context, typ reflect2.Type) *StructDescriptor {
+func DescribeStruct(ctx Context, typ reflect2.Type, callbacks ...func(*reflect2.StructField)) *StructDescriptor {
 	cfg := ctx.Config()
 	var embeddedBindings []*FieldBinding
 	var bindings []*FieldBinding
@@ -114,6 +114,10 @@ func DescribeStruct(ctx Context, typ reflect2.Type) *StructDescriptor {
 				continue
 			}
 		}
+		for _, fn := range callbacks {
+			fn(&field)
+		}
+
 		binding := &FieldBinding{
 			levels:  []int{level},
 			Field:   field,

@@ -5,9 +5,9 @@ import (
 )
 
 type DereferenceEncoder struct {
-	ValueEncoder Encoder
+	Encoder Encoder
 }
 
 func (r *DereferenceEncoder) Encode(ptr unsafe.Pointer, writer interface{}) {
-	r.ValueEncoder.Encode(*((*unsafe.Pointer)(ptr)), writer)
+	r.Encoder.Encode(*((*unsafe.Pointer)(ptr)), writer)
 }
