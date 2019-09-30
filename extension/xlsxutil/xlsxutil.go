@@ -9,6 +9,9 @@ import (
 )
 
 func Convert(obj interface{}, writer io.Writer) error {
+	if obj == nil {
+		return ErrIsNil
+	}
 	ctx := NewContext(&reflectutil.Config{TaggedFieldOnly: true})
 	typ := reflectutil.TypeOf(obj)
 	if typ.Kind() != reflect.Struct {

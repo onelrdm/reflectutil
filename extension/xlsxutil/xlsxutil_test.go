@@ -153,6 +153,7 @@ func TestConvert(t *testing.T) {
 			}
 			var buf bytes.Buffer
 			assert.NoError(t, Convert(sliceInterface.Data, &buf))
+			assert.Error(t, Convert(nil, &buf))
 		},
 	}
 	for _, test := range tests {
