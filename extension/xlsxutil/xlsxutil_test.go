@@ -25,7 +25,7 @@ func TestConvert(t *testing.T) {
 		Time2  time.Time `reflect:"time2"`
 	}
 	type Embed struct {
-		*Embed2
+		Embed2
 		ID   int        `reflect:"id"`
 		Name string     `reflect:"name"`
 		Time *time.Time `reflect:"time"`
@@ -46,7 +46,7 @@ func TestConvert(t *testing.T) {
 			now := time.Now()
 			val := Val{
 				Embed: Embed{
-					Embed2: &Embed2{
+					Embed2: Embed2{
 						ID2:    2,
 						Name2:  "name2",
 						Valid2: true,
@@ -104,7 +104,7 @@ func TestConvert(t *testing.T) {
 			now := time.Now()
 			val := Val{
 				Embed: Embed{
-					Embed2: &Embed2{
+					Embed2: Embed2{
 						ID2:    2,
 						Name2:  "name2",
 						Valid2: true,
@@ -133,7 +133,7 @@ func TestConvert(t *testing.T) {
 			now := time.Now()
 			val := Val{
 				Embed: Embed{
-					Embed2: &Embed2{
+					Embed2: Embed2{
 						ID2:    2,
 						Name2:  "name2",
 						Valid2: true,
@@ -160,14 +160,13 @@ func TestConvert(t *testing.T) {
 			assert.NoError(t, Convert(sliceInterface.Data, file))
 		},
 	}
-	tests[2]()
-	t.Skip()
 	for _, test := range tests {
 		test()
 	}
 }
 
 func TestConvert2(t *testing.T) {
+	t.Skip()
 	type Embed2 struct {
 		ID2    int       `reflect:"id2"`
 		Name2  string    `reflect:"name2"`
