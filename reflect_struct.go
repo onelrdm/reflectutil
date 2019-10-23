@@ -2,13 +2,14 @@ package reflectutil
 
 import (
 	"fmt"
-	"github.com/modern-go/reflect2"
-	"github.com/onelrdm/conv"
 	"reflect"
 	"sort"
 	"strings"
 	"unicode"
 	"unsafe"
+
+	"github.com/modern-go/reflect2"
+	"github.com/onelrdm/conv"
 )
 
 // Encoder is an internal type registered to cache as needed.
