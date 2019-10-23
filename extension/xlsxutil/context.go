@@ -30,7 +30,6 @@ func (r Context) NewEncoder(typ reflect2.Type) reflectutil.Encoder {
 	case reflect.String:
 		return stringCodec
 	case reflect.Struct:
-		fmt.Printf("123\n")
 		ctx := NewStructContext(&reflectutil.Config{TaggedFieldOnly: true})
 		sd := reflectutil.DescribeStruct(ctx, typ)
 		return &structEncoder{sd}

@@ -1,12 +1,13 @@
 package xlsxutil
 
 import (
-	"fmt"
-	"github.com/modern-go/reflect2"
-	"github.com/onelrdm/reflectutil"
-	"github.com/tealeg/xlsx"
 	"reflect"
 	"unsafe"
+
+	"github.com/modern-go/reflect2"
+	"github.com/tealeg/xlsx"
+
+	"github.com/onelrdm/reflectutil"
 )
 
 type StructContext struct {
@@ -31,7 +32,6 @@ func (r StructContext) NewEncoder(typ reflect2.Type) reflectutil.Encoder {
 	case reflect.Ptr:
 		typ := typ.(*reflect2.UnsafePtrType)
 		encoder := r.NewEncoder(typ.Elem())
-		fmt.Printf("%d\n", 3214)
 		return &reflectutil.DereferenceEncoder{Encoder: encoder}
 	default:
 		return &AnyCodec{typ: typ}
