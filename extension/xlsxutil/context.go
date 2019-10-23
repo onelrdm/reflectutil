@@ -1,10 +1,11 @@
 package xlsxutil
 
 import (
-	"fmt"
-	"github.com/modern-go/reflect2"
-	"github.com/onelrdm/reflectutil"
 	"reflect"
+
+	"github.com/modern-go/reflect2"
+
+	"github.com/onelrdm/reflectutil"
 )
 
 type Context struct {
