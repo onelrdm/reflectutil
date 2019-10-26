@@ -10,19 +10,7 @@ import (
 	"github.com/onelrdm/reflectutil"
 )
 
-type StructContext struct {
-	cfg *reflectutil.Config
-}
-
-func NewStructContext(cfg *reflectutil.Config) *StructContext {
-	return &StructContext{cfg: cfg}
-}
-
-func (r StructContext) Config() *reflectutil.Config {
-	return r.cfg
-}
-
-func (r StructContext) NewEncoder(typ reflect2.Type) reflectutil.Encoder {
+func GetStructFieldEncoder(typ reflect2.Type, field reflect2.StructField) reflectutil.Encoder {
 	kind := typ.Kind()
 	switch kind {
 	case reflect.Int:
@@ -31,7 +19,7 @@ func (r StructContext) NewEncoder(typ reflect2.Type) reflectutil.Encoder {
 		return stringCodec
 	case reflect.Ptr:
 		typ := typ.(*reflect2.UnsafePtrType)
-		encoder := r.NewEncoder(typ.Elem())
+		encoder := GetStructFieldEncoder(typ.Elem(), field)
 		return &reflectutil.DereferenceEncoder{Encoder: encoder}
 	default:
 		return &AnyCodec{typ: typ}
@@ -47,7 +35,6 @@ func (r *structEncoder) Encode(ptr unsafe.Pointer, writer interface{}) {
 	for _, binding := range r.Fields {
 		cell := row.AddCell()
 		w := CellWriter{Cell: cell}
-		fieldPtr := binding.Field.UnsafeGet(ptr)
-		binding.Encoder.Encode(fieldPtr, &w)
+		binding.Encoder.Encode(ptr, &w)
 	}
 }

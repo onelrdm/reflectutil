@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_dereferenceEncoder_Encode(t *testing.T) {
+func Test_DereferenceEncoder_Encode(t *testing.T) {
 	encoder := &DereferenceEncoder{Encoder: &MockFieldEncoder{}}
 	encoder.Encode(reflect2.PtrOf(1), nil)
 	type MockEmbeddedStruct struct {}

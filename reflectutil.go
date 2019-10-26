@@ -2,9 +2,16 @@
 package reflectutil
 
 import (
-	"github.com/modern-go/reflect2"
 	"reflect"
+	"unsafe"
+
+	"github.com/modern-go/reflect2"
 )
+
+// Encoder is an internal type registered to cache as needed.
+type Encoder interface {
+	Encode(ptr unsafe.Pointer, writer interface{})
+}
 
 func TypeOf(obj interface{}) reflect2.Type {
 	typ := reflect2.TypeOf(obj)

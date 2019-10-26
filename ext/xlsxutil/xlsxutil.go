@@ -1,25 +1,28 @@
 package xlsxutil
 
 import (
-	"github.com/modern-go/reflect2"
-	"github.com/onelrdm/reflectutil"
-	"github.com/tealeg/xlsx"
 	"io"
 	"reflect"
+
+	"github.com/modern-go/reflect2"
+	"github.com/tealeg/xlsx"
+
+	"github.com/onelrdm/reflectutil"
 )
+
+var DefaultOption = &reflectutil.Option{TaggedFieldOnly: true}
 
 func Convert(obj interface{}, writer io.Writer) error {
 	if obj == nil {
 		return ErrIsNil
 	}
-	ctx := NewContext(&reflectutil.Config{TaggedFieldOnly: true})
 	typ := reflectutil.TypeOf(obj)
 	if typ.Kind() != reflect.Struct {
 		return ErrMustBeStruct
 	}
 
 	file := xlsx.NewFile()
-	sd := reflectutil.DescribeStruct(ctx, typ)
+	sd := reflectutil.DescribeStruct(typ.(*reflect2.UnsafeStructType), GetEncoder, DefaultOption)
 	var hasSlice bool
 	for _, binding := range sd.Fields {
 		field := binding.Field
@@ -32,8 +35,7 @@ func Convert(obj interface{}, writer io.Writer) error {
 		if err != nil {
 			return err
 		}
-		ptr := field.UnsafeGet(reflect2.PtrOf(obj))
-		binding.Encoder.Encode(ptr, sheet)
+		binding.Encoder.Encode(reflect2.PtrOf(obj), sheet)
 		hasSlice = true
 	}
 	if !hasSlice {

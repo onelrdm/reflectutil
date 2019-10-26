@@ -1,11 +1,12 @@
 package xlsxutil
 
 import (
+	"testing"
+	"time"
+
 	"github.com/modern-go/reflect2"
 	"github.com/stretchr/testify/assert"
 	"github.com/tealeg/xlsx"
-	"testing"
-	"time"
 )
 
 func TestAnyCodec_Encode(t *testing.T) {
